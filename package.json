@@ -1,14 +1,16 @@
 {
   "name": "rachels-ghome",
   "version": "1.0.0",
-  "description": "",
+  "description": "Google Home application for Rachel's English",
   "main": "index.js",
   "scripts": {
     "run": "ts-node src/main.ts"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "me@nbeloglazov.com",
+  "dependencies": {
+    "actions-on-google": "1.0.4"
+  },
   "devDependencies": {
     "@types/node": "^6.0.58",
     "ts-node": "^2.0.0",
