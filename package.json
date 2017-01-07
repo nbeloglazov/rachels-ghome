@@ -1,0 +1,17 @@
+{
+  "name": "rachels-ghome",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "run": "ts-node src/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^6.0.58",
+    "ts-node": "^2.0.0",
+    "typescript": "^2.1.4"
+  }
+}
