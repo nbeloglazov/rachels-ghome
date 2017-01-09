@@ -1,13 +1,7 @@
-/// <reference path="actions_on_google.d.ts" />
+import {createApp} from './app';
 
-import {User} from './user';
-import {ActionsSdkAssistant} from 'actions-on-google';
-
-const user: User = {id: '12345', lastActionTimestampMs: 0, heardFirstGreeting: false};
-console.log(user);
-
-console.log(new ActionsSdkAssistant({request: {get: function() {}}, response: {}}));
-
-export function add(a: number, b: number): number {
-  return a + b;
-}
+const app = createApp();
+const server = app.listen(8080, function () {
+  console.log('App listening on port %s', server.address().port);
+  console.log('Press Ctrl+C to quit.');
+});

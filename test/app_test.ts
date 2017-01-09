@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {add} from '../src/main';
+import {add} from '../src/app';
 
 describe('add', function() {
   it('works', function() {
