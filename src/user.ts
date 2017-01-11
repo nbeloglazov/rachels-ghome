@@ -16,5 +16,5 @@ export interface User {
   /**
    * Defines whether user already heard initial full-form greeting and it can be skipped for follow up visits.
    */
-  heardFirstGreeting: boolean
+  heardFullGreeting: boolean
 }

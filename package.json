@@ -12,6 +12,7 @@
   "dependencies": {
     "actions-on-google": "1.0.4",
     "body-parser": "^1.15.2",
+    "chai": "^3.5.0",
     "express": "^4.14.0"
   },
   "devDependencies": {
@@ -19,6 +20,7 @@
     "@types/node": "^6.0.58",
     "@types/mocha": "^2.2.36",
     "@types/body-parser": "0.0.33",
+    "@types/chai": "^3.4.34",
     "mocha": "^3.2.0",
     "ts-node": "^2.0.0",
     "typescript": "^2.1.4"
