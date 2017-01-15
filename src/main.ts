@@ -1,6 +1,8 @@
 import {createApp} from './app';
+import {createDatabase} from "./db";
+import {CONFIG} from "./config";
 
-const app = createApp();
+const app = createApp(createDatabase(CONFIG));
 const server = app.listen(8080, function () {
   console.log('App listening on port %s', server.address().port);
   console.log('Press Ctrl+C to quit.');

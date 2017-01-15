@@ -35,6 +35,17 @@ declare module 'actions-on-google' {
     (assistant: ActionsSdkAssistant): void;
   }
 
+  /** https://developers.google.com/actions/reference/conversation#User */
+  interface User {
+    user_id: string;
+    profile?: {
+      given_name: string;
+      family_name: string;
+      display_name: string;
+    }
+    access_token?: string;
+  }
+
   class ActionsSdkAssistant {
     constructor(options: ActionsSdkAssistantOptions);
 
@@ -44,6 +55,8 @@ declare module 'actions-on-google' {
 
     // TODO: change return type to HTTP response.
     tell(textToSpeech: string): Object|null;
+
+    getUser(): User;
   }
 }
 

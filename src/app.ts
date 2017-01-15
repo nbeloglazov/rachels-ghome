@@ -4,8 +4,9 @@ import {User} from './user';
 import * as actionsSdk from 'actions-on-google';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import {ActionHandler, ActionRequest, ActionResponse, ResponseType, GREETING_REQUEST} from './actions';
+import {ActionHandler, ActionRequest, ResponseType, GREETING_REQUEST} from './actions';
 import {HANDLER as GREETING_HANDLER} from './actions/greeting';
+import {Database} from "./db";
 
 export const ACTION_HANDLERS: Array<ActionHandler> = [
     GREETING_HANDLER
@@ -20,12 +21,12 @@ function getHandlerForRequest(request: ActionRequest): ActionHandler {
   throw new Error('Could not find handler for request: ' + JSON.stringify(request));
 }
 
-function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant): void {
-  const handler: ActionHandler = getHandlerForRequest(request);
+function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database): void {
+  const handler = getHandlerForRequest(request);
   console.log('Request handler: ' + handler.getType());
-  const response: ActionResponse = handler.handle(request);
-  // TODO: save user profile in DB
+  const response = handler.handle(request);
   console.log(response);
+  database.saveUser(response.user);
   if (response.responseType === ResponseType.Tell) {
     assistant.tell(response.responseMessage);
   } else if (response.responseType === ResponseType.Ask) {
@@ -35,15 +36,12 @@ function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkA
   }
 }
 
-function createUser(): User {
-  return {
-    id: '123',
-    lastActionTimestampMs: -1,
-    heardFullGreeting: false
-  };
+function loadUser(assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<User> {
+  const userId = assistant.getUser().user_id;
+  return database.loadOrGetDefaultUser(userId);
 }
 
-export function createApp(): express.Application {
+export function createApp(database: Database): express.Application {
   const app: express.Application = express();
   app.use(bodyParser.json({type: 'application/json'}));
 
@@ -53,11 +51,12 @@ export function createApp(): express.Application {
 
     function mainIntent(assistant: actionsSdk.ActionsSdkAssistant) {
       console.log('mainIntent');
-      const request: ActionRequest = {
-        user: createUser(),
-        requestMessage: GREETING_REQUEST
-      };
-      handleRequest(request, assistant);
+      loadUser(assistant, database).then((user) => {
+        handleRequest({
+          user: user,
+          requestMessage: GREETING_REQUEST
+        }, assistant, database);
+      });
     }
 
     const actionMap = new Map<string, actionsSdk.ActionHandler>();

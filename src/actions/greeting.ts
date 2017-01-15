@@ -6,12 +6,15 @@ export const HANDLER: actions.ActionHandler = {
   },
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
+    const message = request.user.heardFullGreeting ?
+        '<speak>Welcome back to Rachel\'s english! I\'ll be brief. Goodbye.' :
+        '<speak>Welcome to Rachel\'s english! <break time="1"/> ' +
+        'This is a demo response. Goodbye.';
     request.user.heardFullGreeting = true;
     return {
       user: request.user,
       responseType: actions.ResponseType.Tell,
-      responseMessage: '<speak>Welcome to Rachel\'s english! <break time="1"/> ' +
-      'This is a demo response. Goodbye.'
+      responseMessage: message
     };
   },
 
