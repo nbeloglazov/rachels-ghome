@@ -2,7 +2,8 @@
   "name": "rachels-ghome",
   "version": "1.0.0",
   "description": "Google Home application for Rachel's English",
-  "main": "index.js",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/nbeloglazov/rachels-ghome",
   "scripts": {
     "prestart": "tsc",
     "start": "node src/main.js",
@@ -11,6 +12,9 @@
     "clean": "rm src/**/*js test/**/*js",
     "start-dev-env": "scripts/start_dev_env.sh"
   },
+  "engines" : {
+    "node" : "6.9.4"
+  },
   "keywords": [],
   "author": "me@nbeloglazov.com",
   "dependencies": {
@@ -18,16 +22,15 @@
     "actions-on-google": "1.0.4",
     "body-parser": "^1.15.2",
     "chai": "^3.5.0",
-    "express": "^4.14.0"
-  },
-  "devDependencies": {
+    "express": "^4.14.0",
+    "typescript": "^2.1.4",
     "@types/express": "^4.0.34",
     "@types/node": "^6.0.58",
     "@types/mocha": "^2.2.36",
     "@types/body-parser": "0.0.33",
-    "@types/chai": "^3.4.34",
-    "mocha": "^3.2.0",
-    "ts-node": "^2.0.0",
-    "typescript": "^2.1.4"
+    "@types/chai": "^3.4.34"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0"
   }
 }

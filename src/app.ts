@@ -26,6 +26,7 @@ function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkA
   console.log('Request handler: ' + handler.getType());
   const response = handler.handle(request);
   console.log(response);
+  response.user.lastActionTimestampMs = Date.now();
   database.saveUser(response.user);
   if (response.responseType === ResponseType.Tell) {
     assistant.tell(response.responseMessage);
@@ -45,7 +46,9 @@ export function createApp(database: Database): express.Application {
   const app: express.Application = express();
   app.use(bodyParser.json({type: 'application/json'}));
 
+  let voiceRequestProcessed = 0;
   app.post('/', (request, response) => {
+    voiceRequestProcessed++;
     console.log('handle post');
     const assistant = new actionsSdk.ActionsSdkAssistant({request: request, response: response});
 
@@ -63,6 +66,9 @@ export function createApp(database: Database): express.Application {
     actionMap.set(assistant.StandardIntents.MAIN, mainIntent);
 
     assistant.handleRequest(actionMap);
+  });
+  app.get('/', (_, response) => {
+    response.status(200).send(`Up and running! Processed ${voiceRequestProcessed} voice requests so far.`);
   });
   return app;
 }
