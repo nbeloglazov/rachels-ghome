@@ -2,3 +2,5 @@
 node_modules
 creds.data
 npm-debug.log
+src/**/*js
+test/**/*js

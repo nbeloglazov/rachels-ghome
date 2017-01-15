@@ -18,3 +18,11 @@ export interface User {
    */
   heardFullGreeting: boolean
 }
+
+export function getDefaultUser(userId: string): User {
+  return {
+    id: userId,
+    lastActionTimestampMs: 0,
+    heardFullGreeting: false
+  };
+}

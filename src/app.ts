@@ -1,4 +1,4 @@
-/// <reference path="actions_on_google.d.ts" />
+/// <reference path="libraries.d.ts" />
 
 import {User} from './user';
 import * as actionsSdk from 'actions-on-google';

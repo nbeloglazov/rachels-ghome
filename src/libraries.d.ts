@@ -4,7 +4,7 @@
  * Types for 'actions-on-google' node js library.
  * See reference here: https://developers.google.com/actions/reference/ActionsSdkAssistant
  */
-declare module "actions-on-google" {
+declare module 'actions-on-google' {
 
   /**
    * Options object passed to ActionsSdkAssistant constructor.
@@ -45,4 +45,14 @@ declare module "actions-on-google" {
     // TODO: change return type to HTTP response.
     tell(textToSpeech: string): Object|null;
   }
+}
+
+/**
+ * Types for google cloud datastore node js library.
+ * See reference here: https://googlecloudplatform.github.io/google-cloud-node/#/docs/datastore/0.6.0/datastore
+ * TODO: add better types
+ */
+declare module '@google-cloud/datastore' {
+  const constructor: (config: Object) => any;
+  export default constructor;
 }

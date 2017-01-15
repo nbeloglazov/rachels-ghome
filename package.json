@@ -4,12 +4,17 @@
   "description": "Google Home application for Rachel's English",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/main.ts",
-    "test": "mocha --compilers ts:ts-node/register,tsx:ts-node/register"
+    "prestart": "tsc",
+    "start": "node src/main.js",
+    "pretest": "tsc",
+    "test": "mocha",
+    "clean": "rm src/**/*js test/**/*js",
+    "start-dev-env": "scripts/start_dev_env.sh"
   },
   "keywords": [],
   "author": "me@nbeloglazov.com",
   "dependencies": {
+    "@google-cloud/datastore": "^0.6.1",
     "actions-on-google": "1.0.4",
     "body-parser": "^1.15.2",
     "chai": "^3.5.0",
