@@ -41,7 +41,7 @@ export class TestDbHelper {
 /**
  * Object holding instances of test databases to be used in tests.
  */
-interface TestDabases {
+export interface TestDatabases {
   db: db.Database|null;
   dbHelper: TestDbHelper|null;
 }
@@ -56,9 +56,9 @@ interface TestDabases {
  *   });
  * }));
  */
-export function wrapDatabase(fn: (databases: TestDabases) => void): () => void {
+export function wrapDatabase(fn: (databases: TestDatabases) => void): () => void {
   return function() {
-    const databases: TestDabases = {
+    const databases: TestDatabases = {
       db: null,
       dbHelper: null
     };

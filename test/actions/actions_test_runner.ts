@@ -1,0 +1,104 @@
+import {TestDatabases} from '../test_utils';
+import {User, getDefaultUser} from '../../src/user';
+import * as supertest from 'supertest';
+import {createApp} from '../../src/app';
+
+let userIdGenerator = 0;
+let conversationIdGenerator = 0;
+
+interface ActionResult {
+  user: User;
+  ssml: string;
+  expectUserResponse: boolean;
+}
+
+/**
+ * Class for running e2d tests on action handlers. Each action handler should have e2e test that send raw user request
+ * and validates response. This class allows for easy request-response testing and assumes single user. The workflow is
+ * the following:
+ *
+ * 1. Create runner.
+ * 2. If needed, modify user in the runner.
+ * 3. Send user input using handleAction()
+ * 4. Validate generated ssml response and also user object.
+ *
+ * Usage:
+ *
+ * describe('action handler foo', wrapDatabases(function(databases) {
+ *   if('should return foo', function() {
+ *     const runner = new ActionsTestRunner(databases);
+ *     runner.modifyUser((user) => { ... });
+ *     runner.handleAction('tell me foo').then((result) => {
+ *       // check that response contains foo
+ *       assert.include(result.ssml, 'foo');
+ *       // check that handler changed user
+ *       assert.equal(result.user.askedForFoo, true);
+ *     });
+ *   });
+ * }));
+ */
+export class ActionsTestRunner {
+  private user: User;
+  private databases: TestDatabases;
+  private request: supertest.SuperTest<supertest.Test>;
+  private conversationId: string;
+
+  constructor(databases: TestDatabases) {
+    this.databases = databases;
+    this.user = getDefaultUser(String(++userIdGenerator));
+    this.request = supertest(createApp(databases.db!));
+    this.conversationId = String(++conversationIdGenerator);
+  }
+
+  modifyUser(modifyFn: (user: User) => User): Promise<void> {
+    this.user = modifyFn(this.user);
+    return this.databases.db!.saveUser(this.user);
+  }
+
+  handleAction(userInput: string): Promise<ActionResult> {
+    return new Promise((resolve, reject) => {
+      this.request.post('/')
+          .send({
+            'user': {
+              'user_id': this.user.id,
+            },
+            'conversation': {
+              'conversation_id': this.conversationId,
+              'type': 'ACTIVE'
+            },
+            'inputs': [{
+              'intent': 'assistant.intent.action.MAIN',
+              'raw_inputs': [
+                {'query': userInput}
+              ]
+            }]
+          })
+          .expect(200)
+          .end((err: any, res: supertest.Response) => {
+            if (err) {
+              reject(err);
+            } else {
+              this.buildActionResultFromResponse(res).then(resolve);
+            }
+          });
+    });
+  }
+
+  private static getSsmlFromResponseBody(body: any): string {
+    if (body['expect_user_response']) {
+      return body['expected_inputs'][0]['input_prompt']['initial_prompts'][0]['ssml'];
+    } else {
+      return body['final_response']['speech_response']['ssml'];
+    }
+  }
+
+  private buildActionResultFromResponse(response: supertest.Response): Promise<ActionResult> {
+    return this.databases.db!.loadOrGetDefaultUser(this.user.id).then((user) => {
+       return {
+        user: user,
+        expectUserResponse: response.body['expect_user_response'],
+        ssml: ActionsTestRunner.getSsmlFromResponseBody(response.body)
+      };
+    });
+  }
+}

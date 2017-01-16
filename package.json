@@ -8,7 +8,7 @@
     "prestart": "tsc",
     "start": "node src/main.js",
     "pretest": "tsc",
-    "test": "mocha",
+    "test": "mocha --recursive",
     "clean": "rm src/**/*js test/**/*js",
     "start-dev-env": "scripts/start_dev_env.sh"
   },
