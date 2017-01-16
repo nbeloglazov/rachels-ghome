@@ -1,2 +1,5 @@
 runtime: nodejs
 env: flex
+
+automatic_scaling:
+  max_fnum_instances: 1
