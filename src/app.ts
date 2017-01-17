@@ -27,14 +27,15 @@ function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkA
   const response = handler.handle(request);
   console.log(response);
   response.user.lastActionTimestampMs = Date.now();
-  database.saveUser(response.user);
-  if (response.responseType === ResponseType.Tell) {
-    assistant.tell(response.responseMessage);
-  } else if (response.responseType === ResponseType.Ask) {
-    throw new Error('TODO: implement Ask');
-  } else {
-    throw new Error('Unknown ResponseType: ' + response.responseType);
-  }
+  database.saveUser(response.user).then(() => {
+    if (response.responseType === ResponseType.Tell) {
+      assistant.tell(response.responseMessage);
+    } else if (response.responseType === ResponseType.Ask) {
+      throw new Error('TODO: implement Ask');
+    } else {
+      throw new Error('Unknown ResponseType: ' + response.responseType);
+    }
+  });
 }
 
 function loadUser(assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<User> {
