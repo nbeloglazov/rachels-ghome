@@ -2,6 +2,7 @@ import {Config, CONFIG} from "../src/config";
 import {User} from '../src/user';
 import * as db from '../src/db';
 import {assert} from 'chai';
+import * as http from 'http';
 const createDatastore = require('@google-cloud/datastore');
 
 export const TEST_CONFIG: Config = Object.assign(CONFIG);
@@ -54,6 +55,23 @@ export interface TestDatabases {
   dbHelper: TestDbHelper|null;
 }
 
+function waitForDatabaseToBecomeAvailable(): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const checkDatabaseUp = () => {
+      http.get(TEST_CONFIG.gcloud.datastoreEndpoint, (res) => {
+        if (res.statusCode === 200) {
+          resolve();
+        } else {
+          setTimeout(checkDatabaseUp, 100);
+        }
+      }).on('error', () => {
+        setTimeout(checkDatabaseUp, 100);
+      });
+    };
+    checkDatabaseUp();
+  });
+}
+
 /**
  * Middleware that adds database for testing and sets up hooks so that database is cleaned between tests. Usage:
  *
@@ -71,10 +89,14 @@ export function wrapDatabase(fn: (databases: TestDatabases) => void): () => void
       dbHelper: null
     };
 
-    before('setting up databases', function () {
+    before('setting up databases', async function () {
+      // Setting up database might take time, for example waiting for
+      // database to become available so increase timeout.
+      this.timeout(5000);
+      await waitForDatabaseToBecomeAvailable();
       databases.db = db.createDatabase(TEST_CONFIG);
       databases.dbHelper = new TestDbHelper(TEST_CONFIG);
-      return databases.dbHelper.deleteAllUsers();
+      await databases.dbHelper.deleteAllUsers();
     });
 
     beforeEach('verify database is empty before each test', function () {
