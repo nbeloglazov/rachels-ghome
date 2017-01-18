@@ -6,10 +6,14 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import {ActionHandler, ActionRequest, ResponseType, GREETING_REQUEST} from './actions';
 import {HANDLER as GREETING_HANDLER} from './actions/greeting';
+import {HANDLER as DONT_UNDERSTAND_HANDLER} from './actions/dont_understand';
+import {HANDLER as HELP_HANDLER} from './actions/help';
 import {Database} from "./db";
 
 export const ACTION_HANDLERS: Array<ActionHandler> = [
-    GREETING_HANDLER
+  GREETING_HANDLER,
+  HELP_HANDLER,
+  DONT_UNDERSTAND_HANDLER
 ];
 
 function getHandlerForRequest(request: ActionRequest): ActionHandler {
@@ -31,7 +35,8 @@ function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkA
     if (response.responseType === ResponseType.Tell) {
       assistant.tell(response.responseMessage);
     } else if (response.responseType === ResponseType.Ask) {
-      throw new Error('TODO: implement Ask');
+      assistant.ask(assistant.buildInputPrompt(true, response.responseMessage,
+          ['Please tell me what to do or say "help" to hear the list of possible commands.']));
     } else {
       throw new Error('Unknown ResponseType: ' + response.responseType);
     }
@@ -63,8 +68,19 @@ export function createApp(database: Database): express.Application {
       });
     }
 
+    function textIntent(assistant: actionsSdk.ActionsSdkAssistant) {
+      console.log('textIntent');
+      loadUser(assistant, database).then((user) => {
+        handleRequest({
+          user: user,
+          requestMessage: assistant.getRawInput()
+        }, assistant, database);
+      });
+    }
+
     const actionMap = new Map<string, actionsSdk.ActionHandler>();
     actionMap.set(assistant.StandardIntents.MAIN, mainIntent);
+    actionMap.set(assistant.StandardIntents.TEXT, textIntent);
 
     assistant.handleRequest(actionMap);
   });

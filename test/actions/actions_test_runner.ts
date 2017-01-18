@@ -2,6 +2,7 @@ import {TestDatabases} from '../test_utils';
 import {User, getDefaultUser} from '../../src/user';
 import * as supertest from 'supertest';
 import {createApp} from '../../src/app';
+import {ActionsSdkAssistant} from 'actions-on-google';
 
 let userIdGenerator = 0;
 let conversationIdGenerator = 0;
@@ -55,24 +56,33 @@ export class ActionsTestRunner {
     return this.databases.db!.saveUser(this.user);
   }
 
+  openRachelsEnglish(): Promise<ActionResult> {
+    return this.handleActionInternal('rachel\'s english', ActionsSdkAssistant.prototype.StandardIntents.MAIN);
+  }
+
   handleAction(userInput: string): Promise<ActionResult> {
+    return this.handleActionInternal(userInput, ActionsSdkAssistant.prototype.StandardIntents.TEXT);
+  }
+
+  private handleActionInternal(userInput: string, intent: string): Promise<ActionResult> {
+    const actionRequestJson = {
+      'user': {
+        'user_id': this.user.id,
+      },
+      'conversation': {
+        'conversation_id': this.conversationId,
+        'type': 'ACTIVE'
+      },
+      'inputs': [{
+        'intent': intent,
+        'raw_inputs': [
+          {'query': userInput}
+        ]
+      }]
+    };
     return new Promise((resolve, reject) => {
       this.request.post('/')
-          .send({
-            'user': {
-              'user_id': this.user.id,
-            },
-            'conversation': {
-              'conversation_id': this.conversationId,
-              'type': 'ACTIVE'
-            },
-            'inputs': [{
-              'intent': 'assistant.intent.action.MAIN',
-              'raw_inputs': [
-                {'query': userInput}
-              ]
-            }]
-          })
+          .send(actionRequestJson)
           .expect(200)
           .end((err: any, res: supertest.Response) => {
             if (err) {
@@ -94,7 +104,8 @@ export class ActionsTestRunner {
 
   private buildActionResultFromResponse(response: supertest.Response): Promise<ActionResult> {
     return this.databases.db!.loadOrGetDefaultUser(this.user.id).then((user) => {
-       return {
+      this.user = user;
+      return {
         user: user,
         expectUserResponse: response.body['expect_user_response'],
         ssml: ActionsTestRunner.getSsmlFromResponseBody(response.body)

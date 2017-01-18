@@ -54,9 +54,15 @@ declare module 'actions-on-google' {
     handleRequest(handler: Map<string, ActionHandler>|ActionHandler): void;
 
     // TODO: change return type to HTTP response.
+    ask(inputPrompt: Object, dialogState?: Object): Object|null;
+
     tell(textToSpeech: string): Object|null;
 
     getUser(): User;
+
+    getRawInput(): string;
+
+    buildInputPrompt(isSsml: boolean, initialPrompt: string, noInputs: Array<string>): Object;
   }
 }
 

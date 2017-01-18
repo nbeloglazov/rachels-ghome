@@ -6,7 +6,7 @@ describe('greeting action', wrapDatabase(function(databases) {
 
   it('should say "welcome to Rachel\'s English"', function() {
     const runner = new ActionsTestRunner(databases);
-    return runner.handleAction('').then((result) => {
+    return runner.openRachelsEnglish().then((result) => {
       assert.equal(result.user.heardFullGreeting, true);
       assert.include(result.ssml, 'Welcome to Rachel\'s English!',);
     });
@@ -15,11 +15,9 @@ describe('greeting action', wrapDatabase(function(databases) {
   it('for users coming back should say "welcome back"', function() {
     const runner = new ActionsTestRunner(databases);
     return runner
-        .modifyUser((user) => {
-          user.heardFullGreeting = true;
-          return user;
-        })
-        .then(() => runner.handleAction(''))
+        // Call openRachelsEnglish twice to imitate repeated visit.
+        .openRachelsEnglish()
+        .then(() => runner.openRachelsEnglish())
         .then((result) => {
           assert.include(result.ssml, 'Welcome back to Rachel\'s English!');
         });
