@@ -4,7 +4,7 @@ import {User} from './user';
  * Enum of support action handlers.
  */
 export enum ActionType {
-  Greeting, DontUnderstand, Help
+  Greeting, DontUnderstand, Help, PlayNextLesson
 }
 
 /**

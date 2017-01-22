@@ -1,4 +1,5 @@
 import * as actions from '../actions';
+import {AppState} from '../user';
 
 /**
  * This is entry handler which is called when user "enters" Rachel's English app.
@@ -15,11 +16,13 @@ export const HANDLER: actions.ActionHandler = {
         'It has been <say-as interpret-as="cardinal">' + secondsSinceLastVisist +
         '</say-as> seconds since your last visit.</speak>' :
         '<speak>Welcome to Rachel\'s English! This is a demo response.</speak>';
-    request.user.heardFullGreeting = true;
+    const user = request.user;
+    user.heardFullGreeting = true;
+    user.appState = AppState.MainMenu;
     return {
       user: request.user,
       responseType: actions.ResponseType.Ask,
-      responseMessage: message
+      responseMessage: message,
     };
   },
 

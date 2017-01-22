@@ -8,11 +8,13 @@ import {ActionHandler, ActionRequest, ResponseType, GREETING_REQUEST} from './ac
 import {HANDLER as GREETING_HANDLER} from './actions/greeting';
 import {HANDLER as DONT_UNDERSTAND_HANDLER} from './actions/dont_understand';
 import {HANDLER as HELP_HANDLER} from './actions/help';
+import {HANDLER as PLAY_NEXT_LESSON_HANDLER} from './actions/play_next_lesson';
 import {Database} from "./db";
 
 export const ACTION_HANDLERS: Array<ActionHandler> = [
   GREETING_HANDLER,
   HELP_HANDLER,
+  PLAY_NEXT_LESSON_HANDLER,
   DONT_UNDERSTAND_HANDLER
 ];
 

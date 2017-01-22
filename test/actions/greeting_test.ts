@@ -1,6 +1,7 @@
 import {wrapDatabase} from '../test_utils';
 import {ActionsTestRunner} from './actions_test_runner';
 import {assert} from 'chai';
+import {AppState} from '../../src/user';
 
 describe('greeting action', wrapDatabase(function(databases) {
 
@@ -9,6 +10,7 @@ describe('greeting action', wrapDatabase(function(databases) {
     return runner.openRachelsEnglish().then((result) => {
       assert.equal(result.user.heardFullGreeting, true);
       assert.include(result.ssml, 'Welcome to Rachel\'s English!',);
+      assert.equal(result.user.appState, AppState.MainMenu);
     });
   });
 
@@ -22,4 +24,17 @@ describe('greeting action', wrapDatabase(function(databases) {
           assert.include(result.ssml, 'Welcome back to Rachel\'s English!');
         });
   });
+
+  it('greeting action resets state to main menu', function() {
+    const runner = new ActionsTestRunner(databases);
+    return runner
+        .modifyUser((user) => {
+          user.appState = AppState.Quit;
+          return user;
+        })
+        .then(() => runner.openRachelsEnglish())
+        .then((result) => {
+          assert.equal(result.user.appState, AppState.MainMenu);
+        })
+  })
 }));
