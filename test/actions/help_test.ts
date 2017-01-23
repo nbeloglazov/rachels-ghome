@@ -5,13 +5,11 @@ import {assert} from 'chai';
 
 describe('help action', wrapDatabase(function(databases) {
 
-  it('should contain "next lesson" and "random lesson" commands', function() {
+  it('should contain "next lesson" and "random lesson" commands', async function() {
     const runner = new ActionsTestRunner(databases);
-    return runner.openRachelsEnglish()
-        .then(() => runner.handleAction('help me'))
-        .then((result) => {
-          assert.include(result.ssml, 'play random lesson');
-          assert.include(result.ssml, 'play next lesson');
-        });
+    await runner.openRachelsEnglish();
+    const result = await runner.handleAction('help me');
+    assert.include(result.ssml, 'play random lesson');
+    assert.include(result.ssml, 'play next lesson');
   });
 }));

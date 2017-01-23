@@ -102,14 +102,13 @@ export class ActionsTestRunner {
     }
   }
 
-  private buildActionResultFromResponse(response: supertest.Response): Promise<ActionResult> {
-    return this.databases.db!.loadOrGetDefaultUser(this.user.id).then((user) => {
-      this.user = user;
-      return {
-        user: user,
-        expectUserResponse: response.body['expect_user_response'],
-        ssml: ActionsTestRunner.getSsmlFromResponseBody(response.body)
-      };
-    });
+  private async buildActionResultFromResponse(response: supertest.Response): Promise<ActionResult> {
+    const user = await this.databases.db!.loadOrGetDefaultUser(this.user.id);
+    this.user = user;
+    return {
+      user: user,
+      expectUserResponse: response.body['expect_user_response'],
+      ssml: ActionsTestRunner.getSsmlFromResponseBody(response.body)
+    };
   }
 }

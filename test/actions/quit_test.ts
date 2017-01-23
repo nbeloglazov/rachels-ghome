@@ -5,14 +5,12 @@ import {AppState} from '../../src/user';
 
 describe('quit action', wrapDatabase(function(databases) {
 
-  it('should quit', function() {
+  it('should quit', async function() {
     const runner = new ActionsTestRunner(databases);
-    return runner.openRachelsEnglish()
-        .then(() => runner.handleAction('quit'))
-        .then((result) => {
-          assert.include(result.ssml, 'See you later');
-          assert.equal(result.expectUserResponse, false);
-          assert.equal(result.user.appState, AppState.Quit);
-        });
+    await runner.openRachelsEnglish();
+    const result = await runner.handleAction('quit');
+    assert.include(result.ssml, 'See you later');
+    assert.equal(result.expectUserResponse, false);
+    assert.equal(result.user.appState, AppState.Quit);
   });
 }));

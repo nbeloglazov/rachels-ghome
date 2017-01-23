@@ -38,28 +38,28 @@ function executePreActionHooks(user: User): User {
       (user: User, hook: PreActionHook) => hooks.executePreActionHook(hook, user), user);
 }
 
-function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database): void {
+async function handleRequest(
+    request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<void>{
   const handler = getHandlerForRequest(request);
   console.log('Request handler: ' + handler.getType());
   request.user = executePreActionHooks(request.user);
   const response = handler.handle(request);
   console.log(response);
   response.user.lastActionTimestampMs = Date.now();
-  database.saveUser(response.user).then(() => {
-    if (response.responseType === ResponseType.Tell) {
-      assistant.tell(response.responseMessage);
-    } else if (response.responseType === ResponseType.Ask) {
-      assistant.ask(assistant.buildInputPrompt(true, response.responseMessage,
-          ['Please tell me what to do or say "help" to hear the list of possible commands.']));
-    } else {
-      throw new Error('Unknown ResponseType: ' + response.responseType);
-    }
-  });
+  await database.saveUser(response.user);
+  if (response.responseType === ResponseType.Tell) {
+    assistant.tell(response.responseMessage);
+  } else if (response.responseType === ResponseType.Ask) {
+    assistant.ask(assistant.buildInputPrompt(true, response.responseMessage,
+        ['Please tell me what to do or say "help" to hear the list of possible commands.']));
+  } else {
+    throw new Error('Unknown ResponseType: ' + response.responseType);
+  }
 }
 
-function loadUser(assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<User> {
+async function loadUser(assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<User> {
   const userId = assistant.getUser().user_id;
-  return database.loadOrGetDefaultUser(userId);
+  return await database.loadOrGetDefaultUser(userId);
 }
 
 export function createApp(database: Database): express.Application {
@@ -72,24 +72,22 @@ export function createApp(database: Database): express.Application {
     console.log('handle post');
     const assistant = new actionsSdk.ActionsSdkAssistant({request: request, response: response});
 
-    function mainIntent(assistant: actionsSdk.ActionsSdkAssistant) {
+    async function mainIntent(assistant: actionsSdk.ActionsSdkAssistant) {
       console.log('mainIntent');
-      loadUser(assistant, database).then((user) => {
-        handleRequest({
-          user: user,
-          requestMessage: GREETING_REQUEST
-        }, assistant, database);
-      });
+      const user = await loadUser(assistant, database);
+      handleRequest({
+        user: user,
+        requestMessage: GREETING_REQUEST
+      }, assistant, database);
     }
 
-    function textIntent(assistant: actionsSdk.ActionsSdkAssistant) {
+    async function textIntent(assistant: actionsSdk.ActionsSdkAssistant) {
       console.log('textIntent');
-      loadUser(assistant, database).then((user) => {
-        handleRequest({
-          user: user,
-          requestMessage: assistant.getRawInput()
-        }, assistant, database);
-      });
+      const user = await loadUser(assistant, database);
+      handleRequest({
+        user: user,
+        requestMessage: assistant.getRawInput()
+      }, assistant, database);
     }
 
     const actionMap = new Map<string, actionsSdk.ActionHandler>();

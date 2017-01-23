@@ -24,26 +24,23 @@ export class TestDbHelper {
     });
   }
 
-  getAllUsers(): Promise<Array<User>> {
+  async getAllUsers(): Promise<Array<User>> {
     const query = this.datastore.createQuery(db.USER_KIND);
-    return this.datastore.runQuery(query).then((result: Array<any>) => {
-      return result[0];
-    });
+    const result: Array<any> = await this.datastore.runQuery(query);
+    return result[0];
   }
 
-  deleteAllUsers(): Promise<void> {
-    return this.getAllUsers().then((users) => {
-      if (users.length === 0) {
-        return null;
-      }
-      const userKeys = users.map((user) => (<any>user)[createDatastore.KEY]);
-      return this.datastore.delete(userKeys).then(() => {
-        // There seems to be a bug when even if delete promise resolve - it doesn't mean that entries were deleted.
-        // Might be a bug with datastore simulator. As a workaround we call deleteAllUsers again until everything
-        // is deleted.
-        return this.deleteAllUsers();
-      });
-    });
+  async deleteAllUsers(): Promise<void> {
+    const users = await this.getAllUsers();
+    if (users.length === 0) {
+      return;
+    }
+    const userKeys = users.map((user) => (<any>user)[createDatastore.KEY]);
+    await this.datastore.delete(userKeys);
+    // There seems to be a bug when even if delete promise resolve - it doesn't mean that entries were deleted.
+    // Might be a bug with datastore simulator. As a workaround we call deleteAllUsers again until everything
+    // is deleted.
+    await this.deleteAllUsers();
   }
 }
 
@@ -99,10 +96,9 @@ export function wrapDatabase(fn: (databases: TestDatabases) => void): () => void
       await databases.dbHelper.deleteAllUsers();
     });
 
-    beforeEach('verify database is empty before each test', function () {
-      return databases.dbHelper!.getAllUsers().then((users) => {
-        assert.lengthOf(users, 0, `Got users: ${JSON.stringify(users)}`);
-      });
+    beforeEach('verify database is empty before each test', async function () {
+      const users = await databases.dbHelper!.getAllUsers();
+      assert.lengthOf(users, 0, `Got users: ${JSON.stringify(users)}`);
     });
 
     afterEach('cleanup database after test', function () {
