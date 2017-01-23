@@ -10,6 +10,7 @@ import {HANDLER as DONT_UNDERSTAND_HANDLER} from './actions/dont_understand';
 import {HANDLER as HELP_HANDLER} from './actions/help';
 import {HANDLER as PLAY_NEXT_LESSON_HANDLER} from './actions/play_next_lesson';
 import {HANDLER as QUIT_HANDLER} from './actions/quit';
+import {HANDLER as PLAY_RANDOM_LESSON_HANDLER} from './actions/play_random_lesson';
 import {Database} from "./db";
 import * as hooks from './hooks';
 
@@ -17,6 +18,7 @@ export const ACTION_HANDLERS: Array<ActionHandler> = [
   GREETING_HANDLER,
   HELP_HANDLER,
   PLAY_NEXT_LESSON_HANDLER,
+  PLAY_RANDOM_LESSON_HANDLER,
   QUIT_HANDLER,
   DONT_UNDERSTAND_HANDLER
 ];

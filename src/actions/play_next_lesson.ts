@@ -26,7 +26,7 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
        <speak>Playing lesson "${currentLesson.name}". 
        <audio src="${currentLesson.audioLink}">${currentLesson.name}</audio>
        You've completed "${currentLesson.name}" lesson. Say 'play next lesson' to do another lesson
-       or say 'cancel' to quit.</speak>`
+       or you may say 'quit'.</speak>`
   };
 }
 

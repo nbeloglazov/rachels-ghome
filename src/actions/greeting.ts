@@ -10,12 +10,9 @@ export const HANDLER: actions.ActionHandler = {
   },
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
-    const secondsSinceLastVisist = Math.floor((Date.now() - request.user.lastActionTimestampMs) / 1000);
     const message = request.user.heardFullGreeting ?
-        '<speak>Welcome back to Rachel\'s English! ' +
-        'It has been <say-as interpret-as="cardinal">' + secondsSinceLastVisist +
-        '</say-as> seconds since your last visit.</speak>' :
-        '<speak>Welcome to Rachel\'s English! This is a demo response.</speak>';
+        '<speak>Welcome back to Rachel\'s English! What do you want to do today?</speak>' :
+        '<speak>Welcome to Rachel\'s English!</speak>';
     const user = request.user;
     user.heardFullGreeting = true;
     user.appState = AppState.MainMenu;

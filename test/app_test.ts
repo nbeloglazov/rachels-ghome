@@ -9,7 +9,7 @@ describe('action handlers', function() {
     const types: Set<ActionType> = new Set();
     ACTION_HANDLERS.forEach((handler) => {
       if (types.has(handler.getType())) {
-        assert.fail(0, 0, `Found 2 handlers with type: ${handler.getType()}`);
+        assert.fail(0, 0, `Found two handlers with type: ${handler.getType()}`);
       }
       types.add(handler.getType());
     });
