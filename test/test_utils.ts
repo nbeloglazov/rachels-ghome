@@ -92,7 +92,7 @@ export function wrapDatabase(fn: (databases: TestDatabases) => void): () => void
     before('setting up databases', async function () {
       // Setting up database might take time, for example waiting for
       // database to become available so increase timeout.
-      this.timeout(5000);
+      this.timeout(10000);
       await waitForDatabaseToBecomeAvailable();
       databases.db = db.createDatabase(TEST_CONFIG);
       databases.dbHelper = new TestDbHelper(TEST_CONFIG);
