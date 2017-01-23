@@ -1,6 +1,6 @@
 /// <reference path="libraries.d.ts" />
 
-import {User} from './user';
+import {User, PreActionHook} from './user';
 import * as actionsSdk from 'actions-on-google';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -11,6 +11,7 @@ import {HANDLER as HELP_HANDLER} from './actions/help';
 import {HANDLER as PLAY_NEXT_LESSON_HANDLER} from './actions/play_next_lesson';
 import {HANDLER as QUIT_HANDLER} from './actions/quit';
 import {Database} from "./db";
+import * as hooks from './hooks';
 
 export const ACTION_HANDLERS: Array<ActionHandler> = [
   GREETING_HANDLER,
@@ -29,9 +30,16 @@ function getHandlerForRequest(request: ActionRequest): ActionHandler {
   throw new Error('Could not find handler for request: ' + JSON.stringify(request));
 }
 
+function executePreActionHooks(user: User): User {
+  const userHooks = user.preActionsHooks || [];
+  return userHooks.reduce(
+      (user: User, hook: PreActionHook) => hooks.executePreActionHook(hook, user), user);
+}
+
 function handleRequest(request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database): void {
   const handler = getHandlerForRequest(request);
   console.log('Request handler: ' + handler.getType());
+  request.user = executePreActionHooks(request.user);
   const response = handler.handle(request);
   console.log(response);
   response.user.lastActionTimestampMs = Date.now();

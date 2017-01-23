@@ -1,5 +1,5 @@
 import * as actions from '../actions';
-import {AppState} from '../user';
+import {AppState, PreActionHook} from '../user';
 import {THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE} from '../lessons';
 
 function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.ActionResponse {
@@ -17,8 +17,8 @@ function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.A
 function handleUserHasMoreLessons(request: actions.ActionRequest): actions.ActionResponse {
   const user = request.user;
   user.appState = AppState.MainMenu;
+  user.preActionsHooks = [PreActionHook.UpdateLessonsProgress];
   const currentLesson = THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE[user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge];
-  user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge++;
   return {
     user: user,
     responseType: actions.ResponseType.Ask,

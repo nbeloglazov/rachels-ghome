@@ -13,6 +13,21 @@ export interface CoursesProgressMap {
 }
 
 /**
+ * Enums that represent a set of logic that must be performed before actual action happens. Every action can return
+ * a list of hooks to be executed next time processing input from user in current session. So it's like "onUserResponse"
+ * callback.
+ *
+ * Example: google actions sdk  doesn't notify us when user finished listening to lesson but we need it to know it in
+ * order to mark the lesson as completed. So we're doing this pre-action hook hack: when NextLessonAction returns
+ * response it adds UpdateLessonProgress hook so that the next time user says anything in this session we can update
+ * the user lesson progress. And we don't care what user says, we just need to know that the user is still there so
+ * hook will be executed regardless what user says.
+  */
+export enum PreActionHook {
+  UpdateLessonsProgress
+}
+
+/**
  * Interface representing user. For now it's a kitchen sync for all fields that are stored in DB. If you need to store
  * something in DB - add new field here and use it in ActionHandler.
  */
@@ -35,6 +50,9 @@ export interface User {
   appState: AppState;
 
   coursesProgressMap: CoursesProgressMap;
+
+  /** See PreActionHook description for more info */
+  preActionsHooks?: Array<PreActionHook>
 }
 
 export function getDefaultUser(userId: string): User {
