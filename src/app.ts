@@ -42,7 +42,6 @@ async function handleRequest(
     request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<void>{
   const handler = getHandlerForRequest(request);
   console.log('Request handler: ' + handler.getType());
-  request.user = executePreActionHooks(request.user);
   const response = handler.handle(request);
   console.log(response);
   response.user.lastActionTimestampMs = Date.now();
@@ -75,6 +74,8 @@ export function createApp(database: Database): express.Application {
     async function mainIntent(assistant: actionsSdk.ActionsSdkAssistant) {
       console.log('mainIntent');
       const user = await loadUser(assistant, database);
+      // Pre actions hook are not eligible for new sessions.
+      user.preActionsHooks = [];
       handleRequest({
         user: user,
         requestMessage: GREETING_REQUEST
@@ -83,7 +84,8 @@ export function createApp(database: Database): express.Application {
 
     async function textIntent(assistant: actionsSdk.ActionsSdkAssistant) {
       console.log('textIntent');
-      const user = await loadUser(assistant, database);
+      let user = await loadUser(assistant, database);
+      user = executePreActionHooks(user);
       handleRequest({
         user: user,
         requestMessage: assistant.getRawInput()

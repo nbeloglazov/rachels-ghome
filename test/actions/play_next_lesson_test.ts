@@ -36,6 +36,19 @@ describe('play next lesson action', wrapDatabase(function(databases) {
     assert.equal(result.expectUserResponse, false);
   });
 
+  it('should not update progress if user quits app in the middle of the lesson', async function() {
+    const runner = new ActionsTestRunner(databases);
+    let result = await runner.openRachelsEnglish();
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
+    await runner.handleAction('play next lesson');
+
+    // To imitate that user left app we open just pretend use "opened" it again as there is no "quit" callback provided
+    // by sdk.
+    result = await runner.openRachelsEnglish();
+    // Progress should not have been updated
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
+  });
+
   it('should not play audio if user reached the end of the course', async function() {
     const runner = new ActionsTestRunner(databases);
     await runner.openRachelsEnglish();
