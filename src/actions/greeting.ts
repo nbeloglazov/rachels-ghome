@@ -12,8 +12,10 @@ export const HANDLER: actions.ActionHandler = {
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
     const message = request.user.heardFullGreeting ?
-        '<speak>Welcome back to Rachel\'s English! What do you want to do today?</speak>' :
-        '<speak>Welcome to Rachel\'s English!</speak>';
+        '<speak>Welcome back to Rachel\'s English!What do you want to do today?</speak>' :
+        '<speak>Welcome to Rachel\'s English! This is a beta version. Currently only ' +
+        '<say-as interpret-as="cardinal">30</say-as>-day phrasal verbs ' +
+        'challenge is available. Say "play next lesson" to start.</speak>';
     const user = request.user;
     user.heardFullGreeting = true;
     user.appState = AppState.MainMenu;

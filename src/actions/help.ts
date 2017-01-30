@@ -12,8 +12,8 @@ export const HANDLER: actions.ActionHandler = {
     return {
       user: request.user,
       responseType: actions.ResponseType.Ask,
-      responseMessage: '<speak>You can say things like ' +
-      '"play next lesson" or "play random lesson".</speak>'
+      responseMessage: '<speak>This is <say-as type="ordinal">30</say-as> day phrasal verbs challenge. You can say ' +
+      'things like "play next lesson" or "play random lesson".</speak>'
     };
   },
 

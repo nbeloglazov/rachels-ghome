@@ -95,4 +95,17 @@ describe('play next lesson action', wrapDatabase(function(databases) {
         THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE.length);
     assert.equal(result.expectUserResponse, true);
   });
+
+  ['yes', 'done', 'completed'].forEach((word) => {
+    it('should accept "' + word + '" as completion word', async function() {
+      const runner = new ActionsTestRunner(databases);
+      await runner.openRachelsEnglish();
+
+      let result = await runner.handleAction('play next lesson');
+      assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
+
+      result = await runner.handleAction(word);
+      assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
+    });
+  });
 }));

@@ -25,7 +25,7 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
     responseMessage: `
        <speak>Playing lesson "${currentLesson.name}". 
        <audio src="${lessonLink}">${currentLesson.name}</audio>
-       You've completed "${currentLesson.name}" lesson. Say 'done' to mark this lesson as completed.</speak>`
+       You've completed "${currentLesson.name}" lesson. Say "yes" to mark this lesson as completed.</speak>`
   };
 }
 
@@ -41,7 +41,8 @@ function handleUserCompletedLesson(request: actions.ActionRequest): actions.Acti
 }
 
 function isUserLessonDoneResponse(request: actions.ActionRequest): boolean {
-  return request.requestMessage.toLowerCase().includes('done') &&
+  const input = request.requestMessage.toLowerCase();
+  return (input.includes('done') || input.includes('yes') || input.includes('completed')) &&
       request.user.appState === AppState.AwatingLessonCompleteConfirmation;
 }
 
