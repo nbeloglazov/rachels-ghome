@@ -1,9 +1,11 @@
 {
-  "versionLabel": "1.0.0",
+  "versionLabel": "0.1",
   "agentInfo": {
     "languageCode": "en-US",
     "projectId": "rachels-ghome",
-    "voiceName": "female_2"
+    "voiceName": "female_2",
+    "invocationNames": ["Rachel's English"],
+    "logoUrl": "https://storage.googleapis.com/rachels-ghome.appspot.com/images/logo.png"
   },
   "actions": [
     {
@@ -11,7 +13,7 @@
         "intent": "assistant.intent.action.MAIN"
       },
       "httpExecution": {
-        "url": "https://8408d394.ngrok.io"
+        "url": "https://rachels-ghome.appspot.com"
       }
     }
   ]
