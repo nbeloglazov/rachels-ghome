@@ -1,6 +1,6 @@
 import * as actions from '../actions';
 import {AppState} from '../user';
-import {THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE} from '../lessons';
+import {THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE, getLessonLink} from '../lessons';
 
 function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.ActionResponse {
   const user = request.user;
@@ -18,12 +18,13 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
   const user = request.user;
   user.appState = AppState.AwatingLessonCompleteConfirmation;
   const currentLesson = THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE[user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge];
+  const lessonLink = getLessonLink(currentLesson, user);
   return {
     user: user,
     responseType: actions.ResponseType.Ask,
     responseMessage: `
        <speak>Playing lesson "${currentLesson.name}". 
-       <audio src="${currentLesson.audioLink}">${currentLesson.name}</audio>
+       <audio src="${lessonLink}">${currentLesson.name}</audio>
        You've completed "${currentLesson.name}" lesson. Say 'done' to mark this lesson as completed.</speak>`
   };
 }

@@ -1,3 +1,4 @@
+import {User} from './user';
 export interface Lesson {
   name: string;
   audioLink: string;
@@ -33,3 +34,13 @@ export const THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE: Array<Lesson> = [
     audioLink: 'https://storage.googleapis.com/rachels-ghome.appspot.com/rachelsenglish/How%20to%20Pronounce%20the%20I%20in%20ING%20American%20English.mp3'
   }
 ];
+
+const DEBUG_LESSON = 'https://storage.googleapis.com/rachels-ghome.appspot.com/debug_lesson.mp3';
+
+export function getLessonLink(lesson: Lesson, user: User): string {
+  if (user.debugOptions.useShortDebugLesson) {
+    return DEBUG_LESSON;
+  } else {
+    return lesson.audioLink;
+  }
+}

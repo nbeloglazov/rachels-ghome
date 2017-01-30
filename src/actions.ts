@@ -9,6 +9,7 @@ export enum ActionType {
   Help,
   PlayNextLesson,
   PlayRandomLesson,
+  Debug,
   Quit
 }
 

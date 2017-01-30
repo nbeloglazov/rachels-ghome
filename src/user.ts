@@ -1,3 +1,5 @@
+import * as debugOptions from './debug_options';
+
 /**
  * Enum representing possible "locations" in the app. Like user in main menu, just listened to a lesson
  */
@@ -52,7 +54,9 @@ export interface User {
   coursesProgressMap: CoursesProgressMap;
 
   /** See PreActionHook description for more info */
-  preActionsHooks?: Array<PreActionHook>
+  preActionsHooks?: Array<PreActionHook>;
+
+  debugOptions: debugOptions.DebugOptions;
 }
 
 export function getDefaultUser(userId: string): User {
@@ -63,6 +67,7 @@ export function getDefaultUser(userId: string): User {
     appState: AppState.MainMenu,
     coursesProgressMap: {
       thirtyDaysPhrasalVerbsChallenge: 0
-    }
+    },
+    debugOptions: debugOptions.getDisabledDebugOptions()
   };
 }

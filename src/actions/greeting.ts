@@ -1,5 +1,6 @@
 import * as actions from '../actions';
 import {AppState} from '../user';
+import {getDisabledDebugOptions} from '../debug_options';
 
 /**
  * This is entry handler which is called when user "enters" Rachel's English app.
@@ -16,6 +17,7 @@ export const HANDLER: actions.ActionHandler = {
     const user = request.user;
     user.heardFullGreeting = true;
     user.appState = AppState.MainMenu;
+    user.debugOptions = getDisabledDebugOptions();
     return {
       user: request.user,
       responseType: actions.ResponseType.Ask,
