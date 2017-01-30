@@ -1,5 +1,5 @@
 import * as actions from '../actions';
-import {AppState, PreActionHook} from '../user';
+import {AppState} from '../user';
 import {THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE} from '../lessons';
 
 function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.ActionResponse {
@@ -16,8 +16,7 @@ function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.A
 
 function handleUserHasMoreLessons(request: actions.ActionRequest): actions.ActionResponse {
   const user = request.user;
-  user.appState = AppState.MainMenu;
-  user.preActionsHooks = [PreActionHook.UpdateLessonsProgress];
+  user.appState = AppState.AwatingLessonCompleteConfirmation;
   const currentLesson = THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE[user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge];
   return {
     user: user,
@@ -25,9 +24,24 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
     responseMessage: `
        <speak>Playing lesson "${currentLesson.name}". 
        <audio src="${currentLesson.audioLink}">${currentLesson.name}</audio>
-       You've completed "${currentLesson.name}" lesson. Say 'play next lesson' to do another lesson
-       or you may say 'quit'.</speak>`
+       You've completed "${currentLesson.name}" lesson. Say 'done' to mark this lesson as completed.</speak>`
   };
+}
+
+function handleUserCompletedLesson(request: actions.ActionRequest): actions.ActionResponse {
+  const user = request.user;
+  user.appState = AppState.MainMenu;
+  user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge++;
+  return {
+    user: user,
+    responseType: actions.ResponseType.Ask,
+    responseMessage: '<speak>Lesson marked as completed. What do you want to do next?</speak>'
+  };
+}
+
+function isUserLessonDoneResponse(request: actions.ActionRequest): boolean {
+  return request.requestMessage.toLowerCase().includes('done') &&
+      request.user.appState === AppState.AwatingLessonCompleteConfirmation;
 }
 
 /**
@@ -35,11 +49,14 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
  */
 export const HANDLER: actions.ActionHandler = {
   canHandle(request: actions.ActionRequest): boolean {
-    return request.requestMessage.toLowerCase().includes('next lesson');
+    return request.requestMessage.toLowerCase().includes('next lesson') ||
+        isUserLessonDoneResponse(request);
   },
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
-    if (request.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge ===
+    if (isUserLessonDoneResponse(request)) {
+      return handleUserCompletedLesson(request);
+    } else if (request.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge ===
         THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE.length) {
       return handleUserReachedEndOfCourse(request);
     } else {

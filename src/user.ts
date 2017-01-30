@@ -2,7 +2,7 @@
  * Enum representing possible "locations" in the app. Like user in main menu, just listened to a lesson
  */
 export enum AppState {
-  MainMenu, Quit
+  MainMenu, Quit, AwatingLessonCompleteConfirmation
 }
 
 /**

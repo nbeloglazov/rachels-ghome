@@ -6,7 +6,7 @@ import {THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE} from '../../src/lessons';
 
 describe('play next lesson action', wrapDatabase(function(databases) {
 
-  it('should contain <audio> tag and increase progress after user reply', async function() {
+  it('should mark lesson as completed only after "done"', async function() {
     const runner = new ActionsTestRunner(databases);
     let result = await runner.openRachelsEnglish();
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
@@ -14,7 +14,43 @@ describe('play next lesson action', wrapDatabase(function(databases) {
     // User requested to play next lesson
     result = await runner.handleAction('play next lesson');
     assert.include(result.ssml, '<audio src=');
+    assert.equal(result.user.appState, AppState.AwatingLessonCompleteConfirmation);
+    // We just send lesson back to user and need any user response after lesson ends to mark it as completed.
+    // So for now progress is still 0.
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
+    assert.equal(result.expectUserResponse, true);
+
+    // User marks lesson as completed.
+    result = await runner.handleAction('done');
+    assert.include(result.ssml, 'marked as completed');
+    assert.include(result.ssml, 'do next?');
     assert.equal(result.user.appState, AppState.MainMenu);
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
+    assert.equal(result.expectUserResponse, true);
+
+    // User want's to play another lesson
+    result = await runner.handleAction('play next lesson');
+    assert.include(result.ssml, '<audio src=');
+    assert.equal(result.user.appState, AppState.AwatingLessonCompleteConfirmation);
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
+    assert.equal(result.expectUserResponse, true);
+
+    // And then user leaves. Lesson should not be marked as completed.
+    result = await runner.handleAction('quit');
+    assert.equal(result.user.appState, AppState.Quit);
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
+  });
+
+  it('doing "play next lesson" twice without completion confiration should return same lesson', async function() {
+    const runner = new ActionsTestRunner(databases);
+    let result = await runner.openRachelsEnglish();
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
+
+    // User requested to play next lesson
+    result = await runner.handleAction('play next lesson');
+    const firstLesson = result.ssml;
+    assert.include(result.ssml, '<audio src=');
+    assert.equal(result.user.appState, AppState.AwatingLessonCompleteConfirmation);
     // We just send lesson back to user and need any user response after lesson ends to mark it as completed.
     // So for now progress is still 0.
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
@@ -22,18 +58,11 @@ describe('play next lesson action', wrapDatabase(function(databases) {
 
     // User requested to another lesson again
     result = await runner.handleAction('play next lesson');
-    assert.include(result.ssml, '<audio src=');
-    assert.equal(result.user.appState, AppState.MainMenu);
+    assert.equal(result.user.appState, AppState.AwatingLessonCompleteConfirmation);
     // We should mark only the first lesson as completed, but not the second one yet.
-    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
+    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
     assert.equal(result.expectUserResponse, true);
-
-    // And user is done with lessons and wants to quit.
-    result = await runner.handleAction('quit');
-    assert.equal(result.user.appState, AppState.Quit);
-    // Now both lessons marked as completed.
-    assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 2);
-    assert.equal(result.expectUserResponse, false);
+    assert.equal(firstLesson, result.ssml);
   });
 
   it('should not update progress if user quits app in the middle of the lesson', async function() {
