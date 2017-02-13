@@ -1,6 +1,10 @@
 import * as actions from '../actions';
-import {AppState} from '../user';
-import {THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE, getLessonLink} from '../lessons';
+import {AppState, User} from '../user';
+import {getCourse, getLessonLink, Lesson} from '../lessons';
+
+function getCurrentLesson(user: User): Lesson {
+  return getCourse(user)[user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge];
+}
 
 function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.ActionResponse {
   const user = request.user;
@@ -8,42 +12,54 @@ function handleUserReachedEndOfCourse(request: actions.ActionRequest): actions.A
   return {
     user: user,
     responseType: actions.ResponseType.Ask,
-    responseMessage: '<speak>You already finished thirty days phrasal verb challenge! ' +
-    'You can listen to random lessons by saying "play random lesson"</speak>'
+    responseMessage: `<speak>You've already finished thirty days phrasal verb challenge! 
+    You can listen to random lessons by saying "play random lesson"</speak>`
   };
 }
 
 
 function handleUserHasMoreLessons(request: actions.ActionRequest): actions.ActionResponse {
   const user = request.user;
-  user.appState = AppState.AwatingLessonCompleteConfirmation;
-  const currentLesson = THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE[user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge];
-  const lessonLink = getLessonLink(currentLesson, user);
+  user.appState = AppState.AwaitingNextLessonCompleteConfirmation;
+  const currentLesson = getCurrentLesson(user);
+  const lessonLink = getLessonLink(currentLesson, user.currentLessonPart, user);
+  const openingPhrase = user.currentLessonPart === 0 ? `Playing lesson "${currentLesson.name}".` : ``;
+  const audioFile = `<audio src="${lessonLink}">${currentLesson.name}</audio>`;
+  const isPlayingLastPart = user.currentLessonPart === currentLesson.numberOfParts - 1;
+  const finishPhrase = isPlayingLastPart ?
+      `You've completed "${currentLesson.name}"  <break time="0.2s"/> lesson. Say "yes" to complete this lesson.` :
+      `Say "yes" to continue.`;
   return {
     user: user,
     responseType: actions.ResponseType.Ask,
-    responseMessage: `
-       <speak>Playing lesson "${currentLesson.name}". 
-       <audio src="${lessonLink}">${currentLesson.name}</audio>
-       You've completed "${currentLesson.name}" lesson. Say "yes" to mark this lesson as completed.</speak>`
+    responseMessage: `<speak>${openingPhrase} ${audioFile} ${finishPhrase}</speak>`
   };
 }
 
 function handleUserCompletedLesson(request: actions.ActionRequest): actions.ActionResponse {
   const user = request.user;
-  user.appState = AppState.MainMenu;
-  user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge++;
-  return {
-    user: user,
-    responseType: actions.ResponseType.Ask,
-    responseMessage: '<speak>Lesson marked as completed. What do you want to do next?</speak>'
-  };
+  user.currentLessonPart++;
+  const currentLesson = getCurrentLesson(user);
+  if (user.currentLessonPart < currentLesson.numberOfParts) {
+    // User in a middle of multi-part lesson.
+    return handleUserHasMoreLessons(request);
+  } else {
+    // User finished all parts of the lesson.
+    user.appState = AppState.MainMenu;
+    user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge++;
+    user.currentLessonPart = 0;
+    return {
+      user: user,
+      responseType: actions.ResponseType.Ask,
+      responseMessage: `<speak>Lesson marked as completed. What do you want to do next?</speak>`,
+    };
+  }
 }
 
 function isUserLessonDoneResponse(request: actions.ActionRequest): boolean {
   const input = request.requestMessage.toLowerCase();
   return (input.includes('done') || input.includes('yes') || input.includes('completed')) &&
-      request.user.appState === AppState.AwatingLessonCompleteConfirmation;
+      request.user.appState === AppState.AwaitingNextLessonCompleteConfirmation;
 }
 
 /**
@@ -59,9 +75,10 @@ export const HANDLER: actions.ActionHandler = {
     if (isUserLessonDoneResponse(request)) {
       return handleUserCompletedLesson(request);
     } else if (request.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge ===
-        THIRTY_DAYS_PHRASAL_VERBS_CHALLENGE.length) {
+        getCourse(request.user).length) {
       return handleUserReachedEndOfCourse(request);
     } else {
+      request.user.currentLessonPart = 0;
       return handleUserHasMoreLessons(request);
     }
   },

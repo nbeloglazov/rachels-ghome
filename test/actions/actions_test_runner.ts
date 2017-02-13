@@ -14,7 +14,7 @@ interface ActionResult {
 }
 
 /**
- * Class for running e2d tests on action handlers. Each action handler should have e2e test that send raw user request
+ * Class for running e2e tests on action handlers. Each action handler should have e2e test that send raw user request
  * and validates response. This class allows for easy request-response testing and assumes single user. The workflow is
  * the following:
  *
@@ -51,13 +51,20 @@ export class ActionsTestRunner {
     this.conversationId = String(++conversationIdGenerator);
   }
 
-  modifyUser(modifyFn: (user: User) => User): Promise<void> {
+  async modifyUser(modifyFn: (user: User) => User): Promise<User> {
     this.user = modifyFn(this.user);
-    return this.databases.db!.saveUser(this.user);
+    await this.databases.db!.saveUser(this.user);
+    return this.user;
   }
 
-  openRachelsEnglish(): Promise<ActionResult> {
-    return this.handleActionInternal('rachel\'s english', ActionsSdkAssistant.prototype.StandardIntents.MAIN);
+  async openRachelsEnglish(): Promise<ActionResult> {
+    const result = await this.handleActionInternal('rachel\'s english', ActionsSdkAssistant.prototype.StandardIntents.MAIN);
+    // Hack to make user to use lessons for automated tests.
+    result.user = await this.modifyUser((user) => {
+      user.debugOptions.useCourseForAutomatedTests = true;
+      return user;
+    });
+    return result;
   }
 
   handleAction(userInput: string): Promise<ActionResult> {

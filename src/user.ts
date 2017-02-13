@@ -4,7 +4,7 @@ import * as debugOptions from './debug_options';
  * Enum representing possible "locations" in the app. Like user in main menu, just listened to a lesson
  */
 export enum AppState {
-  MainMenu, Quit, AwatingLessonCompleteConfirmation
+  MainMenu, Quit, AwaitingNextLessonCompleteConfirmation, AwaitingRandomLessonCompleteConfirmation
 }
 
 /**
@@ -26,7 +26,6 @@ export interface CoursesProgressMap {
  * hook will be executed regardless what user says.
   */
 export enum PreActionHook {
-  UpdateLessonsProgress
 }
 
 /**
@@ -53,6 +52,18 @@ export interface User {
 
   coursesProgressMap: CoursesProgressMap;
 
+  /**
+   * Lessons are split into parts to conform 2min audio files restriction. currentLessonPart displays the part that
+   * user should listen to. It is session-based value and will be reset when user logs in.
+   */
+  currentLessonPart: number;
+
+  /**
+   * Index of the lesson which is currently playing. We have to keep index because it might be a multi-part lesson and
+   * we need it to calculate the next part to play.
+   */
+  currentRandomLesson: number;
+
   /** See PreActionHook description for more info */
   preActionsHooks?: Array<PreActionHook>;
 
@@ -68,6 +79,8 @@ export function getDefaultUser(userId: string): User {
     coursesProgressMap: {
       thirtyDaysPhrasalVerbsChallenge: 0
     },
-    debugOptions: debugOptions.getDisabledDebugOptions()
+    currentLessonPart: 0,
+    currentRandomLesson: 0,
+    debugOptions: debugOptions.getDisabledDebugOptions(),
   };
 }

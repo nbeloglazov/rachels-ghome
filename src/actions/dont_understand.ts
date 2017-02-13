@@ -12,7 +12,7 @@ export const HANDLER: actions.ActionHandler = {
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
     let message = 'Sorry, I didn\'t understand. ';
-    if (request.user.appState === AppState.AwatingLessonCompleteConfirmation) {
+    if (request.user.appState === AppState.AwaitingNextLessonCompleteConfirmation) {
       message += 'Say "yes" or "done" or "completed" to mark the lesson as completed. Or say "help to hear a list '
           + 'of possible commands.';
     } else {

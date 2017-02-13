@@ -1,6 +1,11 @@
 import * as actions from '../actions';
-import {AppState} from '../user';
+import {AppState, User} from '../user';
 import {getDisabledDebugOptions} from '../debug_options';
+
+function resetSessionState(user: User) {
+  user.appState = AppState.MainMenu;
+  user.currentLessonPart = 0;
+}
 
 /**
  * This is entry handler which is called when user "enters" Rachel's English app.
@@ -17,8 +22,8 @@ export const HANDLER: actions.ActionHandler = {
         '<say-as interpret-as="cardinal">30</say-as>-day phrasal verbs ' +
         'challenge is available. Say "play next lesson" to start.</speak>';
     const user = request.user;
+    resetSessionState(user);
     user.heardFullGreeting = true;
-    user.appState = AppState.MainMenu;
     user.debugOptions = getDisabledDebugOptions();
     return {
       user: request.user,

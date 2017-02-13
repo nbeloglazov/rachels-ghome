@@ -4,16 +4,23 @@
  */
 export interface DebugOptions {
   useShortDebugLesson: boolean;
+  useCourseForAutomatedTests: boolean;
+  // Number to be used in getRandomLessonIndex and other stuff. It's a hack and should be replaced with proper random
+  // generator mock in future.
+  // https://xkcd.com/221/
+  randomNumber?: number;
 }
 
 export function getDisabledDebugOptions(): DebugOptions {
   return {
-    useShortDebugLesson: false
+    useShortDebugLesson: false,
+    useCourseForAutomatedTests: false,
   };
 }
 
 export function getEnabledDebugOptions(): DebugOptions {
   return {
-    useShortDebugLesson: true
+    useShortDebugLesson: true,
+    useCourseForAutomatedTests: false,
   };
 }
