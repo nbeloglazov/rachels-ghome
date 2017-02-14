@@ -11,7 +11,7 @@
     "test": "mocha --recursive",
     "clean": "rm src/**/*js test/**/*js",
     "start-dev-env": "scripts/start_dev_env.sh",
-    "lint": "tslint --project tsconfig.json -t stylish --type-check -e src/libraries.d.ts src/**/*ts"
+    "lint": "tslint --project tsconfig.json -t stylish --type-check -e src/libraries.d.ts 'src/**/*.ts'"
   },
   "engines": {
     "node": "6.9.4"
