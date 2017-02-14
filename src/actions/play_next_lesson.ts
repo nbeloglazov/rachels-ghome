@@ -24,15 +24,18 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
   const currentLesson = getCurrentLesson(user);
   const lessonLink = getLessonLink(currentLesson, user.currentLessonPart, user);
   const openingPhrase = user.currentLessonPart === 0 ? `Playing lesson "${currentLesson.name}".` : ``;
-  const audioFile = `<audio src="${lessonLink}">${currentLesson.name}</audio>`;
+  const audioFile = `<audio src="${lessonLink}">${currentLesson.name}</audio><break time="1s"/>`;
   const isPlayingLastPart = user.currentLessonPart === currentLesson.numberOfParts - 1;
-  const finishPhrase = isPlayingLastPart ?
-      `You've completed "${currentLesson.name}"  <break time="0.2s"/> lesson. Say "yes" to complete this lesson.` :
-      `Say "yes" to continue.`;
+  const callToAction = isPlayingLastPart ? `Say "yes" to complete this lesson.` : `Say "yes" to continue.`;
+  const finishPhrase = (isPlayingLastPart ?
+      `You have completed lesson "${currentLesson.name}"  <break time="0.2s"/>.` :
+      `End of part <say-as interpret-as="cardinal">${user.currentLessonPart+1}</say-as>.`) + callToAction;
+
   return {
     user: user,
     responseType: actions.ResponseType.Ask,
-    responseMessage: `<speak>${openingPhrase} ${audioFile} ${finishPhrase}</speak>`
+    responseMessage: `<speak>${openingPhrase} ${audioFile} ${finishPhrase}</speak>`,
+    noInputsMessage: [callToAction],
   };
 }
 

@@ -45,6 +45,11 @@ export interface ActionResponse {
   responseType: ResponseType;
   /** Message to be sent to user. Should be in SSML format: https://developers.google.com/actions/reference/ssml */
   responseMessage: string;
+  /**
+   * Optional list of messages to say to user when they're not responding. By default we say something like
+   * "please tell what to do next or say "help" to hear the list of possible commands".
+   */
+  noInputsMessage?: Array<string>;
 }
 
 /**

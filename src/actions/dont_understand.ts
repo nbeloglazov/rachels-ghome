@@ -1,5 +1,18 @@
 import * as actions from '../actions';
-import {AppState} from '../user';
+import {AppState, User} from '../user';
+import {getCourse} from '../lessons';
+
+function userIsInTheMiddleOfMultipartLesson(user: User): boolean {
+  if (user.appState === AppState.AwaitingRandomLessonCompleteConfirmation) {
+    const lesson = getCourse(user)[user.currentRandomLesson];
+    return lesson.numberOfParts > user.currentLessonPart + 1;
+  } else if (user.appState === AppState.AwaitingNextLessonCompleteConfirmation) {
+    const lesson = getCourse(user)[user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge];
+    return lesson.numberOfParts > user.currentLessonPart + 1;
+  } else {
+    return false;
+  }
+}
 
 /**
  * This handler is called when no other handler can handle user requests. We assume at this point that we either
@@ -11,18 +24,28 @@ export const HANDLER: actions.ActionHandler = {
   },
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
-    let message = 'Sorry, I didn\'t understand. ';
-    if (request.user.appState === AppState.AwaitingNextLessonCompleteConfirmation) {
-      message += 'Say "yes" or "done" or "completed" to mark the lesson as completed. Or say "help to hear a list '
-          + 'of possible commands.';
+    const sayYesTo = `Say "yes" or "done" or "completed" to `;
+    let message = 'Sorry, I didn\'t understand that. ';
+    let callToAction = null;
+    if (userIsInTheMiddleOfMultipartLesson(request.user)) {
+      callToAction = sayYesTo + `continue.`;
+      message += callToAction;
+    } else if (request.user.appState === AppState.AwaitingNextLessonCompleteConfirmation) {
+      callToAction = sayYesTo + `complete the lesson.`;
+      message += callToAction;
     } else {
-      message += 'Say "help" to hear possible commands.';
+      message += `Say "help" to hear a list of possible commands.`;
     }
-    return {
+
+    const response: actions.ActionResponse = {
       user: request.user,
       responseType: actions.ResponseType.Ask,
       responseMessage: '<speak>' + message + '</speak>'
     };
+    if (callToAction) {
+      response.noInputsMessage = [callToAction];
+    }
+    return response;
   },
 
   getType() { return actions.ActionType.DontUnderstand; }

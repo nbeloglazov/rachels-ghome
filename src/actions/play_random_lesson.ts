@@ -35,17 +35,23 @@ export const HANDLER: actions.ActionHandler = {
     const lesson = getCourse(user)[user.currentRandomLesson];
     const lessonLink = getLessonLink(lesson, user.currentLessonPart, user);
     const openingMessage = playingNewLesson ? `Playing lesson "${lesson.name}".` : ``;
-    const audioFile = `<audio src="${lessonLink}">${lesson.name}</audio>`;
+    const audioFile = `<audio src="${lessonLink}">${lesson.name}</audio><break time="1s"/>`;
     const playingLastPart = user.currentLessonPart + 1 === lesson.numberOfParts;
+    const callToAction = `Say "yes" to continue.`;
     const finishingMessage = playingLastPart ?
-        `You've completed "${lesson.name}" <break time="0.2s"/> lesson. Say 'play random lesson' to do another lesson
-         or you may say 'quit'.` : `Say "yes" to continue.`;
+        `You have completed lesson "${lesson.name}"<break time="0.2s"/>. Say 'play random lesson' to do another lesson
+         or you may say 'quit'.` :
+        `End of part <say-as interpret-as="cardinal">${user.currentLessonPart+1}</say-as>. ${callToAction}`;
     user.appState = playingLastPart ? AppState.MainMenu : AppState.AwaitingRandomLessonCompleteConfirmation;
-    return {
+    const response: actions.ActionResponse = {
       user: user,
       responseType: actions.ResponseType.Ask,
-      responseMessage: `<speak>${openingMessage} ${audioFile} ${finishingMessage}</speak>`
+      responseMessage: `<speak>${openingMessage} ${audioFile} ${finishingMessage}</speak>`,
     };
+    if (!playingLastPart) {
+      response.noInputsMessage = [callToAction];
+    }
+    return response;
   },
 
   getType() { return actions.ActionType.PlayRandomLesson; }

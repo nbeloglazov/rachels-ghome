@@ -52,6 +52,7 @@ async function handleRequest(
     assistant.tell(response.responseMessage);
   } else if (response.responseType === ResponseType.Ask) {
     assistant.ask(assistant.buildInputPrompt(true, response.responseMessage,
+        response.noInputsMessage ||
         ['Please tell me what to do or say "help" to hear the list of possible commands.']));
   } else {
     throw new Error('Unknown ResponseType: ' + response.responseType);
