@@ -58,9 +58,9 @@ export interface ActionResponse {
  * it.
  */
 export interface ActionHandler {
-  canHandle(request: ActionRequest):boolean;
-  handle(request: ActionRequest):ActionResponse;
-  getType():ActionType;
+  canHandle(request: ActionRequest): boolean;
+  handle(request: ActionRequest): ActionResponse;
+  getType(): ActionType;
 }
 
 /**
