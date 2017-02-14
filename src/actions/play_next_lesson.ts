@@ -29,7 +29,7 @@ function handleUserHasMoreLessons(request: actions.ActionRequest): actions.Actio
   const callToAction = isPlayingLastPart ? `Say "yes" to complete this lesson.` : `Say "yes" to continue.`;
   const finishPhrase = (isPlayingLastPart ?
       `You have completed lesson "${currentLesson.name}"  <break time="0.2s"/>.` :
-      `End of part <say-as interpret-as="cardinal">${user.currentLessonPart+1}</say-as>.`) + callToAction;
+      `End of part <say-as interpret-as="cardinal">${user.currentLessonPart + 1}</say-as>.`) + callToAction;
 
   return {
     user: user,

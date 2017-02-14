@@ -20,7 +20,7 @@ function userRequestedLessonPartContinue(request: actions.ActionRequest): boolea
  */
 export const HANDLER: actions.ActionHandler = {
   canHandle(request: actions.ActionRequest): boolean {
-    return request.requestMessage.toLowerCase().includes('random lesson') || userRequestedLessonPartContinue(request)
+    return request.requestMessage.toLowerCase().includes('random lesson') || userRequestedLessonPartContinue(request);
   },
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
@@ -41,7 +41,7 @@ export const HANDLER: actions.ActionHandler = {
     const finishingMessage = playingLastPart ?
         `You have completed lesson "${lesson.name}"<break time="0.2s"/>. Say 'play random lesson' to do another lesson
          or you may say 'quit'.` :
-        `End of part <say-as interpret-as="cardinal">${user.currentLessonPart+1}</say-as>. ${callToAction}`;
+        `End of part <say-as interpret-as="cardinal">${user.currentLessonPart + 1}</say-as>. ${callToAction}`;
     user.appState = playingLastPart ? AppState.MainMenu : AppState.AwaitingRandomLessonCompleteConfirmation;
     const response: actions.ActionResponse = {
       user: user,

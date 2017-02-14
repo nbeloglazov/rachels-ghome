@@ -42,7 +42,7 @@ declare module 'actions-on-google' {
       given_name: string;
       family_name: string;
       display_name: string;
-    }
+    };
     access_token?: string;
   }
 

@@ -67,7 +67,4 @@ export interface ActionHandler {
  * Request mesage for Greeting action handler. First request from user doesn't have any message so we introduce this
  * fake message to so that Greeting handler can distinguish it.
  */
-export const GREETING_REQUEST:string = 'GREETING_REQUEST';
-
-
-
+export const GREETING_REQUEST: string = 'GREETING_REQUEST';

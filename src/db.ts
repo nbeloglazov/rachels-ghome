@@ -1,7 +1,7 @@
 /// <reference path="libraries.d.ts" />
 
 import {User, getDefaultUser} from './user';
-import {Config} from "./config";
+import {Config} from './config';
 const createDatastore = require('@google-cloud/datastore');
 
 export const USER_KIND = 'User';
