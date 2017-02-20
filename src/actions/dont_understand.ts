@@ -24,11 +24,11 @@ export const HANDLER: actions.ActionHandler = {
   },
 
   handle(request: actions.ActionRequest): actions.ActionResponse {
-    const sayYesTo = `Say "yes" or "done" or "completed" to `;
+    const sayYesTo = `Say "yes" to `;
     let message = 'Sorry, I didn\'t understand that. ';
     let callToAction = null;
     if (userIsInTheMiddleOfMultipartLesson(request.user)) {
-      callToAction = sayYesTo + `continue.`;
+      callToAction = sayYesTo + `continue the lesson.`;
       message += callToAction;
     } else if (request.user.appState === AppState.AwaitingNextLessonCompleteConfirmation) {
       callToAction = sayYesTo + `complete the lesson.`;
