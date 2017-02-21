@@ -55,20 +55,20 @@ describe('play random lesson action', wrapDatabase(function(databases) {
 
     // User asks for the random lesson and gets the first part of the lesson.
     let result = await runner.handleAction('play random lesson');
-    assert.include(result.ssml, 'lesson2_1.mp3');
+    assert.include(result.ssml, 'lesson2-01.mp3');
     assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
     assert.equal(result.user.currentLessonPart, 0);
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
 
     // User says "yes" and gets the second part.
     result = await runner.handleAction('yes');
-    assert.include(result.ssml, 'lesson2_2.mp3');
+    assert.include(result.ssml, 'lesson2-02.mp3');
     assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
     assert.equal(result.user.currentLessonPart, 1);
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
 
     result = await runner.handleAction('yes');
-    assert.include(result.ssml, 'lesson2_3.mp3');
+    assert.include(result.ssml, 'lesson2-03.mp3');
     assert.equal(result.user.appState, AppState.MainMenu);
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 0);
   });

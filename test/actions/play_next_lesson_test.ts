@@ -96,7 +96,7 @@ describe('play next lesson action', wrapDatabase(function(databases) {
     assert.equal(result.expectUserResponse, true);
   });
 
-  ['yes', 'done', 'completed'].forEach((word) => {
+  ['yes', 'done', 'completed', 'continue'].forEach((word) => {
     it('should accept "' + word + '" as completion word', async function() {
       const runner = new ActionsTestRunner(databases);
       await runner.openRachelsEnglish();
@@ -122,21 +122,21 @@ describe('play next lesson action', wrapDatabase(function(databases) {
 
         // User asks for the next lesson and gets the first part of the lesson.
         let result = await runner.handleAction('play next lesson');
-        assert.include(result.ssml, 'lesson2_1.mp3');
+        assert.include(result.ssml, 'lesson2-01.mp3');
         assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
         assert.equal(result.user.currentLessonPart, 0);
         assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
 
         // User says "yes" and gets the second part.
         result = await runner.handleAction('yes');
-        assert.include(result.ssml, 'lesson2_2.mp3');
+        assert.include(result.ssml, 'lesson2-02.mp3');
         assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
         assert.equal(result.user.currentLessonPart, 1);
         assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
 
         // User says "yes" and gets the third part.
         result = await runner.handleAction('yes');
-        assert.include(result.ssml, 'lesson2_3.mp3');
+        assert.include(result.ssml, 'lesson2-03.mp3');
         assert.include(result.ssml.toLowerCase(), 'say "yes" to complete');
         assert.equal(result.user.currentLessonPart, 2);
         assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
@@ -162,21 +162,21 @@ describe('play next lesson action', wrapDatabase(function(databases) {
 
     // User asks for the next lesson and gets the first part of the lesson.
     let result = await runner.handleAction('play next lesson');
-    assert.include(result.ssml, 'lesson2_1.mp3');
+    assert.include(result.ssml, 'lesson2-01.mp3');
     assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
     assert.equal(result.user.currentLessonPart, 0);
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
 
     // User says "yes" and gets the second part.
     result = await runner.handleAction('yes');
-    assert.include(result.ssml, 'lesson2_2.mp3');
+    assert.include(result.ssml, 'lesson2-02.mp3');
     assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
     assert.equal(result.user.currentLessonPart, 1);
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);
 
     // All of a sudden user want tells to play next lesson again. We should just restart the current lesson.
     result = await runner.handleAction('play next lesson');
-    assert.include(result.ssml, 'lesson2_1.mp3');
+    assert.include(result.ssml, 'lesson2-01.mp3');
     assert.include(result.ssml.toLowerCase(), 'say "yes" to continue');
     assert.equal(result.user.currentLessonPart, 0);
     assert.equal(result.user.coursesProgressMap.thirtyDaysPhrasalVerbsChallenge, 1);

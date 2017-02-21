@@ -61,7 +61,8 @@ function handleUserCompletedLesson(request: actions.ActionRequest): actions.Acti
 
 function isUserLessonDoneResponse(request: actions.ActionRequest): boolean {
   const input = request.requestMessage.toLowerCase();
-  return (input.includes('done') || input.includes('yes') || input.includes('completed')) &&
+  return (input.includes('done') || input.includes('yes') || input.includes('completed')
+      || input.includes('continue')) &&
       request.user.appState === AppState.AwaitingNextLessonCompleteConfirmation;
 }
 
