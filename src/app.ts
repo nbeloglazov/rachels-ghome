@@ -4,7 +4,7 @@ import {User, PreActionHook} from './user';
 import * as actionsSdk from 'actions-on-google';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import {ActionHandler, ActionRequest, ResponseType, GREETING_REQUEST} from './actions';
+import {ActionHandler, ActionRequest, ResponseType, GREETING_REQUEST, ActionResponse, ActionType} from './actions';
 import {HANDLER as GREETING_HANDLER} from './actions/greeting';
 import {HANDLER as DONT_UNDERSTAND_HANDLER} from './actions/dont_understand';
 import {HANDLER as HELP_HANDLER} from './actions/help';
@@ -14,6 +14,8 @@ import {HANDLER as PLAY_RANDOM_LESSON_HANDLER} from './actions/play_random_lesso
 import {HANDLER as DEBUG_HANDLER} from './actions/debug_mode';
 import {Database} from './db';
 import * as hooks from './hooks';
+import * as VoiceInsights from 'voicelabs-assistant-sdk';
+import {Config} from './config';
 
 export const ACTION_HANDLERS: Array<ActionHandler> = [
   GREETING_HANDLER,
@@ -40,8 +42,15 @@ function executePreActionHooks(user: User): User {
       (user: User, hook: PreActionHook) => hooks.executePreActionHook(hook, user), user);
 }
 
+function trackAction(handler: ActionHandler, response: ActionResponse, originalHttpRequest: any, config: Config) {
+  if (config.voiceLabsAppToken != null) {
+    VoiceInsights.track(ActionType[handler.getType()], originalHttpRequest.body, response.responseMessage);
+  }
+}
+
 async function handleRequest(
-    request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<void> {
+    request: ActionRequest, assistant: actionsSdk.ActionsSdkAssistant, database: Database, originalHttpRequest: Object,
+    config: Config): Promise<void> {
   const handler = getHandlerForRequest(request);
   console.log('Request handler: ' + handler.getType());
   const response = handler.handle(request);
@@ -57,6 +66,7 @@ async function handleRequest(
   } else {
     throw new Error('Unknown ResponseType: ' + response.responseType);
   }
+  trackAction(handler, response, originalHttpRequest, config);
 }
 
 async function loadUser(assistant: actionsSdk.ActionsSdkAssistant, database: Database): Promise<User> {
@@ -64,7 +74,7 @@ async function loadUser(assistant: actionsSdk.ActionsSdkAssistant, database: Dat
   return await database.loadOrGetDefaultUser(userId);
 }
 
-export function createApp(database: Database): express.Application {
+export function createApp(database: Database, config: Config): express.Application {
   const app: express.Application = express();
   app.use(bodyParser.json({type: 'application/json'}));
 
@@ -82,7 +92,7 @@ export function createApp(database: Database): express.Application {
       handleRequest({
         user: user,
         requestMessage: GREETING_REQUEST
-      }, assistant, database);
+      }, assistant, database, request, config);
     }
 
     async function textIntent(assistant: actionsSdk.ActionsSdkAssistant) {
@@ -92,7 +102,7 @@ export function createApp(database: Database): express.Application {
       handleRequest({
         user: user,
         requestMessage: assistant.getRawInput()
-      }, assistant, database);
+      }, assistant, database, request, config);
     }
 
     const actionMap = new Map<string, actionsSdk.ActionHandler>();

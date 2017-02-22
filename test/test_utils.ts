@@ -7,6 +7,7 @@ const createDatastore = require('@google-cloud/datastore');
 
 export const TEST_CONFIG: Config = Object.assign(CONFIG);
 TEST_CONFIG.gcloud.datastoreNamespace = 'test';
+TEST_CONFIG.voiceLabsAppToken = null;
 
 /**
  * Helper class that provides methods for cleaning up, querying data which

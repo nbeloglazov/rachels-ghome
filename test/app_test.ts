@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {ACTION_HANDLERS, createApp} from '../src/app';
 import {ActionType} from '../src/actions';
 import * as supertest from 'supertest';
-import {wrapDatabase} from './test_utils';
+import {wrapDatabase, TEST_CONFIG} from './test_utils';
 
 describe('action handlers', function() {
   it('should have different types for all handlers', function() {
@@ -28,14 +28,14 @@ describe('action handlers', function() {
 
 describe('app', wrapDatabase(function(databases) {
   it('should return index page', function() {
-    return supertest(createApp(databases.db!))
+    return supertest(createApp(databases.db!, TEST_CONFIG))
         .get('/')
         .expect(/Up and running!/)
         .expect(200);
   });
 
   it('should increase number of processed requests with each POST', function() {
-    const request = supertest(createApp(databases.db!));
+    const request = supertest(createApp(databases.db!, TEST_CONFIG));
     return Promise.resolve()
         .then(() => {
           return request.get('/').expect(/0 voice requests/).expect(200);

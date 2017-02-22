@@ -22,6 +22,9 @@ export interface Config {
 
   /** port on which http server runs */
   port: number;
+
+  /** Token from VoiceLabs (analytics). If null - analytics is disabled. */
+  voiceLabsAppToken: string | null;
 }
 
 export const IS_RUNNING_ON_APP_ENGINE = Boolean(process.env.GAE_INSTANCE);
@@ -36,5 +39,6 @@ export const CONFIG: Config = {
     datastoreEndpoint: IS_RUNNING_ON_APP_ENGINE ? null : 'http://localhost:8081',
     datastoreNamespace: IS_RUNNING_ON_APP_ENGINE ? 'prod' : 'dev'
   },
-  port: parseInt(process.env.PORT, 10) || 8080
+  port: parseInt(process.env.PORT, 10) || 8080,
+  voiceLabsAppToken: null,
 };

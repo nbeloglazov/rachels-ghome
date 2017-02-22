@@ -1,4 +1,4 @@
-import {TestDatabases} from '../test_utils';
+import {TestDatabases, TEST_CONFIG} from '../test_utils';
 import {User, getDefaultUser} from '../../src/user';
 import * as supertest from 'supertest';
 import {createApp} from '../../src/app';
@@ -47,7 +47,7 @@ export class ActionsTestRunner {
   constructor(databases: TestDatabases) {
     this.databases = databases;
     this.user = getDefaultUser(String(++userIdGenerator));
-    this.request = supertest(createApp(databases.db!));
+    this.request = supertest(createApp(databases.db!, TEST_CONFIG));
     this.conversationId = String(++conversationIdGenerator);
   }
 

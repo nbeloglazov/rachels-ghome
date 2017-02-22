@@ -75,3 +75,12 @@ declare module '@google-cloud/datastore' {
   const constructor: (config: Object) => any;
   export default constructor;
 }
+
+/**
+ * Types for VoiceLabs SDK.
+ * https://insights.voicelabs.co/analytics#!/admin/docs
+ */
+declare module 'voicelabs-assistant-sdk' {
+  export function initialize(appToken: string): void;
+  export function track(intentName: string, assistantRequest: Object, agentTTS: string): void;
+}
